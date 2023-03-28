@@ -1,42 +1,49 @@
-// Array of API URLs to fetch data from
-const apiUrls = [
-  "https://jsonplaceholder.typicode.com/todos/1",
-  "https://jsonplaceholder.typicode.com/todos/2",
-  "https://jsonplaceholder.typicode.com/todos/3",
-  "https://jsonplaceholder.typicode.com/todos/4",
-  "https://jsonplaceholder.typicode.com/todos/5",
-  "https://jsonplaceholder.typicode.com/todos/6",
-  "https://jsonplaceholder.typicode.com/todos/7",
-  "https://jsonplaceholder.typicode.com/todos/8",
-  "https://jsonplaceholder.typicode.com/todos/9",
-  "https://jsonplaceholder.typicode.com/todos/10",
+//your JS code here. If required.
+const images = [
+  {
+    url: "https://picsum.photos/id/237/200/300",
+    alt: "Image 1",
+  },
+  {
+    url: "https://picsum.photos/id/238/200/300",
+    alt: "Image 2",
+  },
+  {
+    url: "https://picsum.photos/id/239/200/300",
+    alt: "Image 3",
+  }
+  
 ];
 
-// You can write your code here
-function fetchData(url) {
-  return fetch(url).then((response) => response.json());
+function downloadImages(images) {
+  const promises = images.map(image => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = image.url;
+      img.alt = image.alt;
+      img.onload = () => {
+        resolve(img);
+      };
+      img.onerror = () => {
+        reject(`Failed to load image's URL: ${image.url}`);
+      };
+    });
+  });
+
+  Promise.all(promises)
+    .then(imgs => {
+      const output = document.getElementById('output');
+		output.innerHTML = null;
+      imgs.forEach(img => {
+        output.appendChild(img);
+      });
+    })
+    .catch(error => {
+      console.error(error);
+    });
 }
 
-// Use Promise.all() to fetch data from all APIs and measure the time taken
-const startAll = performance.now();
-Promise.all(apiUrls.map(fetchData))
-  .then((results) => {
-    const endAll = performance.now();
-    const timeTakenAll = (endAll - startAll) / 1000;
-    document.getElementById("output-all").innerText = timeTakenAll.toFixed(3);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
-
-// Use Promise.any() to fetch data from APIs and measure the time taken
-const startAny = performance.now();
-Promise.any(apiUrls.map(fetchData))
-  .then((result) => {
-    const endAny = performance.now();
-    const timeTakenAny = (endAny - startAny) / 1000;
-    document.getElementById("output-any").innerText = timeTakenAny.toFixed(3);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
+const button = document.getElementById('download-images-button');
+button.addEventListener('click', () => {
+  downloadImages(images);
+});
